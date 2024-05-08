@@ -52,7 +52,7 @@ Real-time PCR is performed using a machine called a real-time PCR thermal cycler
 <img width="360" alt="image" src="https://github.com/yasminsoltani/numerical_analysis.md/assets/103854541/f576facc-bd48-4376-8aa5-54753da1c9d6">
 
 ### Efficiency in rtPCR 
-mally, in rtPCR, scientists assume that the efficiency of the process stays constant. But studies have shown that this isn't always true. The efficiency actually changes as the PCR progresses through its cycles. By understanding how efficiency changes during rtPCR, we can develop better methods for quantifying gene expression levels. **Creating a mathematical model of rtPCR helps us understand these changes and leads to more accurate ways to measure efficiency from rtPCR data.** 
+>> In rtPCR, scientists assume that the efficiency of the process stays constant. But studies have shown that this isn't always true. The efficiency actually changes as the PCR progresses through its cycles. By understanding how efficiency changes during rtPCR, we can develop better methods for quantifying gene expression levels. **Creating a mathematical model of rtPCR helps us understand these changes and leads to more accurate ways to measure efficiency from rtPCR data.** 
 
 #### And this is what we are going to do in this project :) 
 
@@ -60,6 +60,82 @@ mally, in rtPCR, scientists assume that the efficiency of the process stays cons
 
 For this project we are going to model the annealing stage of rtPCR using a mathematical model created by Jana L. Gevertz, Stanley M. Dunn, Charles M. Roth in the paper "Mathematical model of real-time PCR kinetics", that you can find [here:](https://analyticalsciencejournals.onlinelibrary.wiley.com/doi/abs/10.1002/bit.20617)
 
+During annealing, primer 1 (P1) binds to template 1 (T1) to form a hybrid molecule (H1), represented by the equation: P1 + T1 ↔ H1
+Similarly, primer 2 (P2) binds to template 2 (T2) to form another hybrid molecule (H2), represented by the equation: P2 + T2 ↔ H2
+These equations represent the reversible nature of the annealing process, where the primers can bind and dissociate from the templates depending on the reaction conditions.
+In addition to the desired primer-template hybridization reactions, other reactions can occur during the annealing stage of PCR. These include the re-annealing of complementary template strands (T1 + T2 ↔ HT) and the formation of primer-dimers (P1 + P2 ↔ D). Therefore, a total of four reactions can occur simultaneously during this stage. 
+These 4 reactions are modeled using thermodynamics (equilibrium) or kitenic equations 
+
+<img width="700" alt="Screenshot 2024-05-08 at 8 03 46 AM" src="https://github.com/yasminsoltani/numerical_analysis.md/assets/103854541/adb96f0d-46eb-4894-b576-eddc02572710">
+
+### Equilibrium Model
+
+>> In the steady-state thermodynamic model of the annealing stage of PCR, the total concentration of all products involved in active reactions is tracked. A mass balance is performed on the reactions to derive equations that represent the conservation of mass for each reactant and product. In these equations, [X]_T represents the total concentration of product X, which includes the concentration of free molecules and any complexes formed with other reactants. The equations describe the balance of primer and template molecules as they participate in hybridization reactions (H1 and H2 formation) as well as other potential reactions such as re-annealing of complementary template strands (U formation) and primer-dimer formation (D).
+
+<img width="603" alt="Screenshot 2024-05-08 at 8 08 17 AM" src="https://github.com/yasminsoltani/numerical_analysis.md/assets/103854541/73ff75df-48d7-450f-969e-b20a21420211">
+
+#### Reactions Proceed to Equilibrium 
+Here, each of the reactions (R1)–(R4) is assumed to proceed to equilibrium. For each reaction, the equilibrium constant is the ratio of reactant to product concentrations which is fixed (written for dissociation of each hybrid). 
+
+<img width="603" alt="Screenshot 2024-05-08 at 8 10 20 AM" src="https://github.com/yasminsoltani/numerical_analysis.md/assets/103854541/f3d3eb27-d110-4741-92af-aaf0399b5528">
+
+#### If the reactions do not proceed to equilibrium, we must follow their progression in time using kinetic equations
+
+### Kinetic Model 
+In the kinetic model, the equilibrium constant from previous equations is now the ratio of kinetic dissociation and association rate constants, where the lower case k denotes a rate rather than an equilibrium constant and the d and a in the subscripts denote dissociation and association, respectively. 
+
+<img width="683" alt="Screenshot 2024-05-08 at 8 17 42 AM" src="https://github.com/yasminsoltani/numerical_analysis.md/assets/103854541/3e68ec53-d227-4a0b-87c5-f37fb5f7cab9">
+
+By applying mass action kinetic balances to each species, the reactions are described by a nonlinear system of **eight differential equations:**
+
+### Kinetic Differential Equations:
+<img width="830" alt="Screenshot 2024-05-08 at 8 19 42 AM" src="https://github.com/yasminsoltani/numerical_analysis.md/assets/103854541/ae90dad9-6ba6-4a4c-afa0-d75b61b27470">
+
+### Efficiency of the Annealing Stage
+By understanding how the concentrations of these molecules change over time, we could then calculate the efficiency of the annealing stage, which measures **how effectively the primers bind to the templates to form hybrid molecules**. This efficiency calculation provides valuable insights into the performance of the PCR reaction and helps optimize reaction conditions for efficient amplification of the target DNA sequence. 
+>> The efficiency of the annealing stage, εann(n), can be calculated by comparing the amount of hybrids after the nth annealing stage to the total amount of template present throughout the nth annealing stage 
+which [H1] and [H2] can be found by solving the nonlinear system of eight equations.
+
+<img width="476" alt="image" src="https://github.com/yasminsoltani/numerical_analysis.md/assets/103854541/813f8973-088c-4d82-9a16-2ab0eff368ec">
+
+#  <img width="40" alt="image" src="https://github.com/yasminsoltani/numerical_analysis.md/assets/103854541/21becf4c-1a68-47b6-afff-49f3de6a1345"> Python Model 
+
+For this project I will atempt to build my model using Python. **Why Python?** It's relatively easy to use and it has built in functions that can make the modulation a little easier. 
+
+#### First, we are going to start importing necessary libraries: 
+
+```python
+import numpy as np
+from scipy.integrate import solve_ivp
+import matplotlib.pyplot as plt
+```
+
+**For the parameters, we are going to use values from Table 1 in the paper, so that at the end we can compare our results with theirs and see if the model performed correctly:**
+```python
+P1_T = 1e-6  # M
+P2_T = 1e-6  # M
+T1_T_min = 1e-14  # M
+T1_T_max = 1e-10  # M
+T2_T_min = 1e-14  # M
+T2_T_max = 1e-10  # M
+KH1 = 5.5531e-13  # M
+KH2 = 8.1493e-11  # M
+KU = 0  # M
+KD = 1e-2  # M
+kaH1 = 1e6  # M^-1 s^-1
+kaH2 = 1e6  # M^-1 s^-1
+kaU = 1e6  # M^-1 s^-1
+kaD = 1e6  # M^-1 s^-1
+kdH1 = 5.5531e-7  # s^-1
+kdH2 = 8.1493e-5  # s^-1
+kdU = 0  # s^-1
+kdD = 1e4  # M^-1 s^-1
+Km = 1.5e-9  # M
+kcat = 0.17  # M^-1 s^-1
+kdeg = 1.9e-4  # s^-1
+tden = 1  # s
+text = 15  # s
+```
 
 
 
