@@ -324,6 +324,8 @@ efficiency = 0.5*(H1_end + H2_end) / (T1_end + T2_end)*100
 print("Efficiency:", efficiency)
 ```
 
+<img width="768" alt="Screenshot 2024-05-08 at 1 03 49 PM" src="https://github.com/yasminsoltani/numerical_analysis.md/assets/103854541/04e4b680-0060-4d40-bfa1-9a1540a70bab">
+
 
 
 
