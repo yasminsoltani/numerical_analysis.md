@@ -108,6 +108,8 @@ For this project I will atempt to build my model using Python. **Why Python?** I
 import numpy as np
 from scipy.integrate import solve_ivp
 import matplotlib.pyplot as plt
+import numpy as np
+from scipy.optimize import root
 ```
 
 **For the parameters, we are going to use values from Table 1 in the paper, so that at the end we can compare our results with theirs and see if the model performed correctly:**
