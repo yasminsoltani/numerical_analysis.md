@@ -137,8 +137,75 @@ tden = 1  # s
 text = 15  # s
 ```
 
+## Equilibrium Model 
+To solve the system of nonlinear equations in the equilibrium model, we are going to employ the **Newton-Raphson method**, which is an iterative numerical technique used to find successively better approximations to the roots (or zeroes) of a real-valued function. It's particularly useful for solving equations where an analytical solution is difficult or impossible to obtain. In our model we specifically used the **'root'** function from the **scipy.optimize** module in Python. The root function is a generalization of the Newton-Raphson method and is suitable for solving systems of nonlinear equations.
 
+```python
+# Define the equations
+def equations(X):
+    P1, P2, T1, T2, H1, H2, U, D = X
+    return [
+        P1_T - (P1 + H1 + D),
+        P2_T - (P2 + H2 + D),
+        T1_T_max - (T1 + H1 + U),
+        T2_T_max - (T2 + H2 + U),
+        KH1 - (P1 * T1 / H1),
+        KH2 - (P2 * T2 / H2),
+        KU - (T1 * T2 / U),
+        KD - (P1 * P2 / D)
+    ]
 
+# Initial guess within reasonable bounds, had to adjust this like 50 times to get reasonable final concentrations value
+initial_guess = [1e-6, 1e-6, 1e-10, 1e-10, 1e-10, 1e-10, 1e-10, 1e-11]
 
+# Solve the equations using root method (generalization of Newton-Raphson)
+solution = root(equations, initial_guess)
+
+P1, P2, T1, T2, H1, H2, U, D = solution.x # Extracting solutions
+
+# Calculate efficiency using formula provided
+efficiency_ann = 0.5 * ((H1 / T1_T_max) + (H2 / T2_T_max)) * 100
+
+print("Concentrations:")
+print(f"P1: {P1} M")
+print(f"P2: {P2} M")
+print(f"T1: {T1} M")
+print(f"T2: {T2} M")
+print(f"H1: {H1} M")
+print(f"H2: {H2} M")
+print(f"U: {U} M")
+print(f"D: {D} M")
+print(f"Annealing Efficiency: {efficiency_ann:.2f}%")
+```
+
+## Fine-tuning Process 🔎
+At first, I tried setting initial guessing for the concentrations of P1,P2,T1,T2,H1,H2, U and D. The outcome of that was very irrational: 
+
+<img width="323" alt="Screenshot 2024-05-08 at 10 40 38 AM" src="https://github.com/yasminsoltani/numerical_analysis.md/assets/103854541/e3150387-9fb9-472e-9b35-bee3a7e5925d">
+
+>> Concentrations represent the amount of a substance present in a given volume, and by definition, they cannot be negative. Negative concentrations obtained from the model calculation indicate that the solver has encountered numerical instabilities or has converged to a solution that does not accurately represent the physical system. This can happen when the solver encounters difficulties in finding a valid solution due to the complexity of the equations or inappropriate initial conditions. 
+
+To solve this, I tried implementing other methods available within the scipy.optimize.root module, such as the **hybrid Powell method ('hybr')**, **the Levenberg-Marquardt algorithm ('lm')**, or the **Broyden's method ('broyden1' or 'broyden2')**.
+
+#### ☹️ unfortunately, that just made things worse:
+
+<img width="318" alt="Screenshot 2024-05-08 at 10 48 43 AM" src="https://github.com/yasminsoltani/numerical_analysis.md/assets/103854541/ce62cd5e-aa05-460c-a6eb-8ed6b5bac024">
+
+### 💡 Eventually, it occured to me that I should be focusing my attention on the initial guesses of the concentrations
+
+For a successful high-efficiency PCR, you generally want a **higher concentration** of the components that **contribute** directly to amplifying your target DNA (amplicon) and **lower concentrations** of components that might **interfere** with or compete against this amplification
+
+#### Higher concentration desired:
+- **H1 and H2:** These are the primers specific to the target DNA sequences. They should be present at a concentration sufficient to anneal specifically to the target sequences and initiate amplification.
+- **T1 and T2:** They should also be present in high concentration since they are responsible for extending the primers and synthesizing new DNA strands during each cycle of PCR.
+- **U (hybrid)**: They should be present at a sufficient concentration for efficient DNA synthesis.
+
+#### Lower concentration desired:
+- **P1 and P2:** These are the primers not specific to the target sequences. While they may be necessary for certain PCR protocols, having them at a lower concentration can help reduce non-specific amplification.
+- **D (primer-dimer):** Primer dimers are unintended products formed when primers anneal to each other rather than to the target DNA. Keeping their concentration low helps minimize their formation, which can interfere with the amplification of your target sequence.
+
+### Implementing changes based on that logic yielded to much greater improvements: 
+
+<img width="280" alt="Screenshot 2024-05-08 at 11 02 49 AM" src="https://github.com/yasminsoltani/numerical_analysis.md/assets/103854541/292d2305-c4a3-4f93-ac24-95fb992cae6b">
 
 
