@@ -162,11 +162,8 @@ initial_guess = [1e-6, 1e-6, 1e-10, 1e-10, 1e-10, 1e-10, 1e-10, 1e-11]
 
 # Solve the equations using root method (generalization of Newton-Raphson)
 solution = root(equations, initial_guess)
-
 P1, P2, T1, T2, H1, H2, U, D = solution.x # Extracting solutions
-
-# Calculate efficiency using formula provided
-efficiency_ann = 0.5 * ((H1 / T1_T_max) + (H2 / T2_T_max)) * 100
+efficiency_ann = 0.5 * ((H1 / T1_T_max) + (H2 / T2_T_max)) * 100 # Calculate efficiency using formula provided
 
 print("Concentrations:")
 print(f"P1: {P1} M")
@@ -215,12 +212,10 @@ For a successful high-efficiency PCR, you generally want a **higher concentratio
 In the paper studied they plot the efficiency and see its behavior over 35 cycles. I decided to generate the same plot and compare it with the plot from the paper:
 
 ```python
-
-# Initial guess
+#Plotting the efficiency over 35 cycles to understand pattern
+# Initial guess based on previous fine tuning
 initial_guess = [1e-6, 1e-6, 1e-10, 1e-10, 1e-10, 1e-10, 1e-10, 1e-11]
-
-# Number of cycles specified in the paper
-num_cycles = 35
+num_cycles = 35 # Number of cycles specified in the paper
 
 # Initialize arrays to store efficiencies
 annealing_efficiencies = []
@@ -230,16 +225,14 @@ for cycle in range(1, num_cycles + 1):
     # Solve equations for current cycle
     solution = root(equations, initial_guess)
     concentrations = solution.x
-    
+
     # Extract concentrations
     P1, P2, T1, T2, H1, H2, U, D = concentrations
-    
-    # Calculate efficiency for current cycle
-    efficiency_ann = 0.5 * ((H1 / T1_T_max) + (H2 / T2_T_max)) * 100
-    
+    efficiency_ann = 0.5 * ((H1 / T1_T_max) + (H2 / T2_T_max)) * 100 # Calculate efficiency for current cycle
+
     # Store efficiency
     annealing_efficiencies.append(efficiency_ann)
-    
+
     # Update initial guess for next cycle
     initial_guess = concentrations
 
@@ -305,7 +298,6 @@ solution = solve_ivp(f, t_span, initial_conditions, args=(KH1, KH2, KU, KD, kaH1
 #When we call solve_ivp with the 'RK45' method, we are using the Fehlberg Runge-Kutta method to solve the system of differential equations.
 #rtol and atol just stands for relative tolerance and absolute tolerance. They are parameters used to control the error tolerances of the numerical solver when integrating the system of differential equations
 
-# Extract the solution
 t = solution.t  # Array of time points
 y = solution.y  # 2D array of solution values, each column corresponds to a variable
 
@@ -322,7 +314,6 @@ T2_end = solution.y[3, -1]  # Concentration of T2 at the end of the simulation
 
 # Calculate the efficiency
 efficiency = 0.5*(H1_end + H2_end) / (T1_end + T2_end)*100
-
 print("Efficiency:", efficiency)
 ```
 
