@@ -329,6 +329,20 @@ print("Efficiency:", efficiency)
 <img width="768" alt="Screenshot 2024-05-08 at 1 03 49 PM" src="https://github.com/yasminsoltani/numerical_analysis.md/assets/103854541/04e4b680-0060-4d40-bfa1-9a1540a70bab">
 
 
+### The kinetic model performs poorly with an efficiency of 85%, which could be due to the progression in time affecting rate of association and dissoociation of our model. 
+
+I have also tried plotting the efficiency of annealing phase over 35 cycles, but experienced difficulties. 
+
+Overall, the equilibrium model performed better than the kinetic model.
+
+If you would like to see the code on Google Colab, you can find it [here](https://colab.research.google.com/drive/1VnJ0CcskyrBKyqzJRHlLRaz-ZI3qVIW3#scrollTo=TYZlVakXWPgb)
+
+## THANK YOU!
+
+## References:
+- The exponential amplification of DNA in PCR. | download scientific ... (n.d.). https://www.researchgate.net/figure/The-exponential-amplification-of-DNA-in-PCR_fig4_236065209 
+- “Primer.” Genome.Gov, www.genome.gov/genetics-glossary/Primer. Accessed 6 Mar. 2024. 
+-	Maussion, Gilles, et al. “Auto-Qpcr: A Python-Based Web App for Automated and Reproducible Analysis of QPCR Data.” bioRxiv, Cold Spring Harbor Laboratory, 1 Jan. 2021, www.biorxiv.org/content/10.1101/2021.01.14.426748v2.full. 
 
 
 
