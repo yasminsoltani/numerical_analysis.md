@@ -263,6 +263,8 @@ In both graphs, cycle efficiency drops to 0 after some cycle and remains 0 after
 
 ### Based on this, we could humbly announce that our equilibrium model demonstrated successful performance 🥳
 
+## Kinetic Model
+Since we also have to assume that our reactions do not proceed to equilibrium, we will also modulate their progression in time using a kinetic model. To solve our ODE's system of equation we will use Fehlberg Kutta Method.
 
 
 
