@@ -267,6 +267,62 @@ In both graphs, cycle efficiency drops to 0 after some cycle and remains 0 after
 Since we also have to assume that our reactions do not proceed to equilibrium, we will also modulate their progression in time using a kinetic model. To solve our ODE's system of equation we will use the **Fehlberg Kutta Method**, which is a numerical technique used to solve ordinary differential equations (ODEs). It's an adaptive method, meaning it dynamically adjusts the step size during the integration process to maintain accuracy.
 
 ```python
+#Kinetic model with 8 differential equations we are going to solve using Fehlberg Kutta Method
+
+# Definining the system of differential equations
+def f(t, y, KH1, KH2, KU, KD, kaH1, kaH2, kaU, kaD, kdH1, kdH2, kdU, kdD):
+    P1, P2, T1, T2, H1, H2, U, D = y
+    dydt = [
+        -kaH1*P1*T1 + kdH1*H1 - kaD*P1*P2 + kdD*D,
+        -kaH2*P2*T2 + kdH2*H2 - kaD*P1*P2 + kdD*D,
+        -kaH1*P1*T1 + kdH1*H1 - kaU*T1*T2 + kdU*U,
+        -kaH2*P2*T2 + kdH2*H2 - kaU*T1*T2 + kdU*U,
+        kaH1*P1*T1 - kdH1*H1,
+        kaH2*P2*T2 - kdH2*H2,
+        kaU*T1*T2 - kdU*U,
+        kaD*P1*P2 - kdD*D
+    ]
+    return dydt
+
+#initial conditions (we assume concentrations start at 0)
+initial_P1 = P1_T
+initial_P2 = P2_T
+initial_T1 = T1_T_min
+initial_T2 = T2_T_min
+initial_H1 = 0
+initial_H2 = 0
+initial_U = 0
+initial_D = 0
+initial_conditions = [initial_P1, initial_P2, initial_T1, initial_T2, initial_H1, initial_H2, initial_U, initial_D]
+
+# Define time span
+t_span = (0, tden)  # we can define initial time and final time span, tden was provided in the parameters table
+
+# Solve the system of differential equations
+solution = solve_ivp(f, t_span, initial_conditions, args=(KH1, KH2, KU, KD, kaH1, kaH2, kaU, kaD, kdH1, kdH2, kdU, kdD), method='RK45', rtol=1e-6, atol=1e-9)
+#When we call solve_ivp with the 'RK45' method, we are using the Fehlberg Runge-Kutta method to solve the system of differential equations.
+#rtol and atol just stands for relative tolerance and absolute tolerance. They are parameters used to control the error tolerances of the numerical solver when integrating the system of differential equations
+
+# Extract the solution
+t = solution.t  # Array of time points
+y = solution.y  # 2D array of solution values, each column corresponds to a variable
+
+print("Time points:", solution.t)
+print("Solution values:")
+for i, variable in enumerate(['P1', 'P2', 'T1', 'T2', 'H1', 'H2', 'U', 'D']):
+    print(f"{variable}: {solution.y[i]}")
+
+# Extract the concentrations of H1, H2, T1, and T2 at the end of the simulation
+H1_end = solution.y[4, -1]  # Concentration of H1 at the end of the simulation, -1 pulls up last value from matrix
+H2_end = solution.y[5, -1]  # Concentration of H2 at the end of the simulation
+T1_end = solution.y[2, -1]  # Concentration of T1 at the end of the simulation
+T2_end = solution.y[3, -1]  # Concentration of T2 at the end of the simulation
+
+# Calculate the efficiency
+efficiency = 0.5*(H1_end + H2_end) / (T1_end + T2_end)*100
+
+print("Efficiency:", efficiency)
+```
 
 
 
