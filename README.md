@@ -209,3 +209,70 @@ For a successful high-efficiency PCR, you generally want a **higher concentratio
 <img width="280" alt="Screenshot 2024-05-08 at 11 02 49 AM" src="https://github.com/yasminsoltani/numerical_analysis.md/assets/103854541/292d2305-c4a3-4f93-ac24-95fb992cae6b">
 
 
+### 📈 Plotting the Efficiency over 35 cycles
+In the paper studied they plot the efficiency and see its behavior over 35 cycles. I decided to generate the same plot and compare it with the plot from the paper:
+
+```python
+
+# Initial guess
+initial_guess = [1e-6, 1e-6, 1e-10, 1e-10, 1e-10, 1e-10, 1e-10, 1e-11]
+
+# Number of cycles specified in the paper
+num_cycles = 35
+
+# Initialize arrays to store efficiencies
+annealing_efficiencies = []
+
+# Simulate the system for each cycle and calculate efficiency
+for cycle in range(1, num_cycles + 1):
+    # Solve equations for current cycle
+    solution = root(equations, initial_guess)
+    concentrations = solution.x
+    
+    # Extract concentrations
+    P1, P2, T1, T2, H1, H2, U, D = concentrations
+    
+    # Calculate efficiency for current cycle
+    efficiency_ann = 0.5 * ((H1 / T1_T_max) + (H2 / T2_T_max)) * 100
+    
+    # Store efficiency
+    annealing_efficiencies.append(efficiency_ann)
+    
+    # Update initial guess for next cycle
+    initial_guess = concentrations
+
+# Plot annealing efficiencies
+plt.figure(figsize=(8, 6))
+plt.plot(range(1, num_cycles + 1), annealing_efficiencies, marker='o', linestyle='-')
+plt.xlabel('Cycle')
+plt.ylabel('Annealing Efficiency (%)')
+plt.title('Cycle Dependent Efficiencies')
+plt.grid(True)
+plt.show()
+```
+
+## My plot: 
+
+![plot equilibrium ](https://github.com/yasminsoltani/numerical_analysis.md/assets/103854541/89253aca-fad4-4237-86dd-62d218bb6f2c)
+
+## Paper's plot: 
+
+<img width="471" alt="Screenshot 2024-05-08 at 11 19 48 AM" src="https://github.com/yasminsoltani/numerical_analysis.md/assets/103854541/a0831e25-564a-4861-986d-ef80d6468075">
+
+In both graphs, cycle efficiency drops to 0 after some cycle and remains 0 afterwards. If the efficiency drops to 0, it generally indicates that the **PCR reaction has reached completion**, meaning that all available template DNA has been amplified and there are no more target sequences left to amplify. In this case, the PCR reaction has saturated, and further cycling will not lead to additional amplification. 
+
+### Based on this, we could humbly announce that our equilibrium model demonstrated successful performance 🥳
+
+
+
+
+
+
+
+
+
+
+
+
+
+
